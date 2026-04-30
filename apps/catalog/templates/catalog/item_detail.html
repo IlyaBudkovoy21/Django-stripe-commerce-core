@@ -7,6 +7,7 @@
   <p>Price: {{ item.price }} {{ item.currency }}</p>
 
   <button id="buy-button" type="button">Buy</button>
+  <p><a href="/item/{{ item.id }}/intent/">Pay with Payment Intent</a></p>
 </main>
 
 <script src="https://js.stripe.com/v3/"></script>
