@@ -3,7 +3,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 import stripe
 
-from apps.orders.models import Order
+from apps.orders.models import Discount, Order, Tax
 
 
 def _configure_stripe() -> None:
@@ -44,8 +44,12 @@ def create_order_checkout_session(*, order: Order):
     if not order_items:
         raise ValueError("Order is empty")
 
-    line_items = [
-        {
+    stripe_coupon_id = _get_or_create_coupon(order.discount) if order.discount and order.discount.is_active else None
+    stripe_tax_rate_id = _get_or_create_tax_rate(order.tax) if order.tax and order.tax.is_active else None
+
+    line_items = []
+    for order_item in order_items:
+        line_item = {
             "quantity": order_item.quantity,
             "price_data": {
                 "currency": order.currency.lower(),
@@ -56,13 +60,47 @@ def create_order_checkout_session(*, order: Order):
                 },
             },
         }
-        for order_item in order_items
-    ]
+        if stripe_tax_rate_id:
+            line_item["tax_rates"] = [stripe_tax_rate_id]
+        line_items.append(line_item)
 
-    return stripe.checkout.Session.create(
-        mode="payment",
-        success_url=f"{settings.APP_BASE_URL}/admin/orders/order/{order.id}/change/",
-        cancel_url=f"{settings.APP_BASE_URL}/admin/orders/order/{order.id}/change/",
-        line_items=line_items,
-        metadata={"order_id": str(order.id)},
+    payload = {
+        "mode": "payment",
+        "success_url": f"{settings.APP_BASE_URL}/admin/orders/order/{order.id}/change/",
+        "cancel_url": f"{settings.APP_BASE_URL}/admin/orders/order/{order.id}/change/",
+        "line_items": line_items,
+        "metadata": {"order_id": str(order.id)},
+    }
+    if stripe_coupon_id:
+        payload["discounts"] = [{"coupon": stripe_coupon_id}]
+
+    return stripe.checkout.Session.create(**payload)
+
+
+def _get_or_create_coupon(discount: Discount) -> str:
+    if discount.stripe_coupon_id:
+        return discount.stripe_coupon_id
+
+    coupon = stripe.Coupon.create(
+        name=discount.name,
+        duration="once",
+        percent_off=float(discount.percent_off),
     )
+    discount.stripe_coupon_id = coupon.id
+    discount.save(update_fields=["stripe_coupon_id", "updated_at"])
+    return coupon.id
+
+
+def _get_or_create_tax_rate(tax: Tax) -> str:
+    if tax.stripe_tax_rate_id:
+        return tax.stripe_tax_rate_id
+
+    tax_rate = stripe.TaxRate.create(
+        display_name=tax.name,
+        percentage=float(tax.percentage),
+        inclusive=tax.inclusive,
+        jurisdiction="Global",
+    )
+    tax.stripe_tax_rate_id = tax_rate.id
+    tax.save(update_fields=["stripe_tax_rate_id", "updated_at"])
+    return tax_rate.id
