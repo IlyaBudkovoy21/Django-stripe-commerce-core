@@ -14,4 +14,8 @@ fi
 python manage.py migrate --noinput
 python manage.py collectstatic --noinput
 
+if [ "${CREATE_SUPERUSER}" = "True" ] || [ "${CREATE_SUPERUSER}" = "true" ]; then
+  python manage.py ensure_superuser --from-env
+fi
+
 exec gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3

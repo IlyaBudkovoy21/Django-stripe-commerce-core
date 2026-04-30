@@ -1,0 +1,70 @@
+databases:
+  - name: stripe-core-db
+    databaseName: stripe_core
+    user: stripe_core
+
+services:
+  - type: web
+    name: django-stripe-commerce-core
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: >-
+      sh -c "python manage.py migrate --noinput &&
+      python manage.py collectstatic --noinput &&
+      if [ -n \"$DJANGO_SUPERUSER_USERNAME\" ] && [ -n \"$DJANGO_SUPERUSER_EMAIL\" ] && [ -n \"$DJANGO_SUPERUSER_PASSWORD\" ]; then python manage.py ensure_superuser --from-env; fi &&
+      gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 3"
+    healthCheckPath: /health/
+    envVars:
+      - key: DJANGO_ENV
+        value: production
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_HOSTS
+        value: .onrender.com
+      - key: DATABASE_ENGINE
+        value: django.db.backends.postgresql
+      - key: DATABASE_NAME
+        fromDatabase:
+          name: stripe-core-db
+          property: database
+      - key: DATABASE_USER
+        fromDatabase:
+          name: stripe-core-db
+          property: user
+      - key: DATABASE_PASSWORD
+        fromDatabase:
+          name: stripe-core-db
+          property: password
+      - key: DATABASE_HOST
+        fromDatabase:
+          name: stripe-core-db
+          property: host
+      - key: DATABASE_PORT
+        fromDatabase:
+          name: stripe-core-db
+          property: port
+      - key: APP_BASE_URL
+        value: https://django-stripe-commerce-core.onrender.com
+      - key: SECURE_SSL_REDIRECT
+        value: "True"
+      - key: SESSION_COOKIE_SECURE
+        value: "True"
+      - key: CSRF_COOKIE_SECURE
+        value: "True"
+      - key: DJANGO_SUPERUSER_USERNAME
+        sync: false
+      - key: DJANGO_SUPERUSER_EMAIL
+        sync: false
+      - key: DJANGO_SUPERUSER_PASSWORD
+        sync: false
+      - key: STRIPE_SECRET_KEY_USD
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY_USD
+        sync: false
+      - key: STRIPE_SECRET_KEY_EUR
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY_EUR
+        sync: false
