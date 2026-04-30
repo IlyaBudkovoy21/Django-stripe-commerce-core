@@ -49,3 +49,8 @@ Initial project skeleton, item payment flow, and order domain models are prepare
 - `GET /item/<id>/` — item page with Stripe checkout button
 - `GET /buy/<id>/` — create Stripe Checkout session and return session id
 - `GET /buy/order/<id>/` — create Stripe Checkout session for all items in order
+
+## Order pricing extras
+
+- `Order.discount` — optional discount model mapped to Stripe Coupon
+- `Order.tax` — optional tax model mapped to Stripe TaxRate
