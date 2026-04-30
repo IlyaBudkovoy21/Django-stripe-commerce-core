@@ -19,6 +19,7 @@ def buy_item(request, item_id: int):
             item_name=item.name,
             item_description=item.description,
             amount=item.price,
+            currency=item.currency,
         )
     except Exception as exc:
         return JsonResponse({"error": str(exc)}, status=400)

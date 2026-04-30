@@ -85,3 +85,19 @@ STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
 STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY", "")
 STRIPE_DEFAULT_CURRENCY = os.getenv("STRIPE_DEFAULT_CURRENCY", "usd")
 APP_BASE_URL = os.getenv("APP_BASE_URL", "http://localhost:8000")
+
+STRIPE_SECRET_KEY_USD = os.getenv("STRIPE_SECRET_KEY_USD", "")
+STRIPE_PUBLISHABLE_KEY_USD = os.getenv("STRIPE_PUBLISHABLE_KEY_USD", "")
+STRIPE_SECRET_KEY_EUR = os.getenv("STRIPE_SECRET_KEY_EUR", "")
+STRIPE_PUBLISHABLE_KEY_EUR = os.getenv("STRIPE_PUBLISHABLE_KEY_EUR", "")
+
+STRIPE_KEYPAIRS = {
+    "USD": {
+        "secret_key": STRIPE_SECRET_KEY_USD,
+        "publishable_key": STRIPE_PUBLISHABLE_KEY_USD,
+    },
+    "EUR": {
+        "secret_key": STRIPE_SECRET_KEY_EUR,
+        "publishable_key": STRIPE_PUBLISHABLE_KEY_EUR,
+    },
+}
