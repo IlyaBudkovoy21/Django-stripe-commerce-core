@@ -41,7 +41,7 @@ python manage.py runserver
 
 ## Current stage
 
-Initial project skeleton and tooling are prepared. Feature work is split into topic branches and issue-driven commits.
+Initial project skeleton, item payment flow, and order domain models are prepared. Feature work is split into topic branches and issue-driven commits.
 
 ## Available endpoints
 
