@@ -1,3 +1,5 @@
+from decimal import Decimal, ROUND_HALF_UP
+
 from django.conf import settings
 
 import stripe
@@ -102,3 +104,44 @@ def _get_or_create_tax_rate(tax: Tax) -> str:
     tax.stripe_tax_rate_id = tax_rate.id
     tax.save(update_fields=["stripe_tax_rate_id", "updated_at"])
     return tax_rate.id
+
+
+def create_item_payment_intent(*, item_id: int, amount: int, currency: str):
+    _configure_stripe(currency)
+    return stripe.PaymentIntent.create(
+        amount=amount,
+        currency=currency.lower(),
+        automatic_payment_methods={"enabled": True},
+        metadata={"item_id": str(item_id)},
+    )
+
+
+def create_order_payment_intent(*, order: Order):
+    _configure_stripe(order.currency)
+
+    amount = _calculate_order_amount_for_payment_intent(order)
+    if amount < 1:
+        raise ValueError("Calculated order amount must be greater than 0")
+
+    return stripe.PaymentIntent.create(
+        amount=amount,
+        currency=order.currency.lower(),
+        automatic_payment_methods={"enabled": True},
+        metadata={"order_id": str(order.id)},
+    )
+
+
+def _calculate_order_amount_for_payment_intent(order: Order) -> int:
+    amount = Decimal(order.calculate_total_amount())
+    if amount < 1:
+        raise ValueError("Order is empty")
+
+    if order.discount and order.discount.is_active:
+        discount_ratio = Decimal("1") - (Decimal(order.discount.percent_off) / Decimal("100"))
+        amount = amount * discount_ratio
+
+    if order.tax and order.tax.is_active:
+        tax_ratio = Decimal("1") + (Decimal(order.tax.percentage) / Decimal("100"))
+        amount = amount * tax_ratio
+
+    return int(amount.quantize(Decimal("1"), rounding=ROUND_HALF_UP))
