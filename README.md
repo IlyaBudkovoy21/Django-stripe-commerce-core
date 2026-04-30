@@ -48,3 +48,4 @@ Initial project skeleton, item payment flow, and order domain models are prepare
 - `GET /health/` — service healthcheck
 - `GET /item/<id>/` — item page with Stripe checkout button
 - `GET /buy/<id>/` — create Stripe Checkout session and return session id
+- `GET /buy/order/<id>/` — create Stripe Checkout session for all items in order
