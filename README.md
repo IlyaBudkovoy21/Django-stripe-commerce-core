@@ -31,6 +31,25 @@ python manage.py migrate
 python manage.py runserver
 ```
 
+## Docker run
+
+1. Prepare env file:
+
+```bash
+cp .env.example .env
+```
+
+2. Start containers:
+
+```bash
+docker compose up --build
+```
+
+3. Open service:
+
+- app: `http://localhost:8000/item/1/`
+- health: `http://localhost:8000/health/`
+
 ## Project structure
 
 - `config/settings/` — environment-aware settings (`base`, `dev`, `prod`)
@@ -45,6 +64,7 @@ python manage.py runserver
 - `DJANGO_ENV=development` loads `config.settings.dev`
 - `DJANGO_ENV=production` loads `config.settings.prod`
 - `.env.example` contains all required runtime variables for local and production setup
+- Docker setup uses PostgreSQL container and runs migrations/collectstatic on startup
 
 ## Current stage
 
