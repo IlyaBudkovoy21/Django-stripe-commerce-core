@@ -50,6 +50,22 @@ docker compose up --build
 - app: `http://localhost:8000/item/1/`
 - health: `http://localhost:8000/health/`
 
+## Deployment blueprint
+
+- `render.yaml` is included for one-click deployment on Render
+- `Procfile` is included for PaaS runtimes that use process files
+- Admin user can be created automatically with:
+  - `CREATE_SUPERUSER=True`
+  - `DJANGO_SUPERUSER_USERNAME`
+  - `DJANGO_SUPERUSER_EMAIL`
+  - `DJANGO_SUPERUSER_PASSWORD`
+
+After deployment, provide to reviewers:
+
+- public base URL
+- admin URL (`/admin/`)
+- admin credentials configured via environment variables
+
 ## Project structure
 
 - `config/settings/` — environment-aware settings (`base`, `dev`, `prod`)
