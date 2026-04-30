@@ -33,11 +33,18 @@ python manage.py runserver
 
 ## Project structure
 
-- `config/` — Django settings, routes, WSGI/ASGI
+- `config/settings/` — environment-aware settings (`base`, `dev`, `prod`)
+- `config/` — routes, WSGI/ASGI
 - `apps/catalog/` — item catalog domain
 - `apps/orders/` — order and pricing domain
 - `apps/payments/` — Stripe integration and payment flows
 - `apps/core/` — shared views/utilities
+
+## Environment config
+
+- `DJANGO_ENV=development` loads `config.settings.dev`
+- `DJANGO_ENV=production` loads `config.settings.prod`
+- `.env.example` contains all required runtime variables for local and production setup
 
 ## Current stage
 
