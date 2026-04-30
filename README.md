@@ -47,3 +47,4 @@ Initial project skeleton and tooling are prepared. Feature work is split into to
 
 - `GET /health/` — service healthcheck
 - `GET /item/<id>/` — item page with Stripe checkout button
+- `GET /buy/<id>/` — create Stripe Checkout session and return session id
