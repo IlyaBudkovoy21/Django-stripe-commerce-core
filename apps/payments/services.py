@@ -1,21 +1,19 @@
 from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
 
 import stripe
 
 from apps.orders.models import Discount, Order, Tax
 
+from .keys import get_stripe_secret_key_for_currency
 
-def _configure_stripe() -> None:
-    if not settings.STRIPE_SECRET_KEY:
-        raise ImproperlyConfigured("STRIPE_SECRET_KEY is not configured")
 
-    stripe.api_key = settings.STRIPE_SECRET_KEY
+def _configure_stripe(currency: str) -> None:
+    stripe.api_key = get_stripe_secret_key_for_currency(currency)
     stripe.api_version = settings.STRIPE_API_VERSION
 
 
-def create_item_checkout_session(*, item_id: int, item_name: str, amount: int, item_description: str):
-    _configure_stripe()
+def create_item_checkout_session(*, item_id: int, item_name: str, amount: int, item_description: str, currency: str):
+    _configure_stripe(currency)
 
     return stripe.checkout.Session.create(
         mode="payment",
@@ -25,7 +23,7 @@ def create_item_checkout_session(*, item_id: int, item_name: str, amount: int, i
             {
                 "quantity": 1,
                 "price_data": {
-                    "currency": settings.STRIPE_DEFAULT_CURRENCY,
+                    "currency": currency.lower(),
                     "unit_amount": amount,
                     "product_data": {
                         "name": item_name,
@@ -38,7 +36,7 @@ def create_item_checkout_session(*, item_id: int, item_name: str, amount: int, i
 
 
 def create_order_checkout_session(*, order: Order):
-    _configure_stripe()
+    _configure_stripe(order.currency)
 
     order_items = list(order.order_items.select_related("item"))
     if not order_items:

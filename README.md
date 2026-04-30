@@ -54,3 +54,10 @@ Initial project skeleton, item payment flow, and order domain models are prepare
 
 - `Order.discount` — optional discount model mapped to Stripe Coupon
 - `Order.tax` — optional tax model mapped to Stripe TaxRate
+
+## Multi-currency Stripe setup
+
+- `Item.currency` supports `USD` and `EUR`
+- Stripe keypairs are selected by currency via env vars:
+  - `STRIPE_SECRET_KEY_USD` / `STRIPE_PUBLISHABLE_KEY_USD`
+  - `STRIPE_SECRET_KEY_EUR` / `STRIPE_PUBLISHABLE_KEY_EUR`
