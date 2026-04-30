@@ -42,3 +42,8 @@ python manage.py runserver
 ## Current stage
 
 Initial project skeleton and tooling are prepared. Feature work is split into topic branches and issue-driven commits.
+
+## Available endpoints
+
+- `GET /health/` — service healthcheck
+- `GET /item/<id>/` — item page with Stripe checkout button
