@@ -1,7 +1,47 @@
 from django.conf import settings
 from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 from apps.catalog.models import Item
+
+
+class Discount(models.Model):
+    name = models.CharField(max_length=128)
+    percent_off = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+    )
+    is_active = models.BooleanField(default=True)
+    stripe_coupon_id = models.CharField(max_length=128, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self) -> str:
+        return f"{self.name} ({self.percent_off}% off)"
+
+
+class Tax(models.Model):
+    name = models.CharField(max_length=128)
+    percentage = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+    )
+    inclusive = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    stripe_tax_rate_id = models.CharField(max_length=128, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self) -> str:
+        return f"{self.name} ({self.percentage}%)"
 
 
 class Order(models.Model):
@@ -12,6 +52,20 @@ class Order(models.Model):
 
     currency = models.CharField(max_length=3, default=settings.STRIPE_DEFAULT_CURRENCY.upper())
     status = models.CharField(max_length=16, choices=Status.choices, default=Status.DRAFT)
+    discount = models.ForeignKey(
+        Discount,
+        on_delete=models.SET_NULL,
+        related_name="orders",
+        null=True,
+        blank=True,
+    )
+    tax = models.ForeignKey(
+        Tax,
+        on_delete=models.SET_NULL,
+        related_name="orders",
+        null=True,
+        blank=True,
+    )
     items = models.ManyToManyField(Item, through="OrderItem", related_name="orders")
     total_amount = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
