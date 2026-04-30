@@ -47,8 +47,11 @@ Initial project skeleton, item payment flow, and order domain models are prepare
 
 - `GET /health/` — service healthcheck
 - `GET /item/<id>/` — item page with Stripe checkout button
+- `GET /item/<id>/intent/` — item page with Stripe Payment Intent flow
 - `GET /buy/<id>/` — create Stripe Checkout session and return session id
 - `GET /buy/order/<id>/` — create Stripe Checkout session for all items in order
+- `GET /pay-intent/item/<id>/` — create Stripe PaymentIntent for item and return `client_secret`
+- `GET /pay-intent/order/<id>/` — create Stripe PaymentIntent for order and return `client_secret`
 
 ## Order pricing extras
 
