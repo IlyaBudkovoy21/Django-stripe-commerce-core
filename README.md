@@ -9,6 +9,11 @@ Backend service on Django for Stripe-based one-click payments for items and orde
 - Stripe Python SDK
 - SQLite for local development (PostgreSQL for production)
 
+## Documentation index
+
+- Runbook: `docs/DEPLOYMENT_RUNBOOK.md`
+- API and test scenarios: `docs/API_TEST_SCENARIOS.md`
+
 ## Quick start
 
 1. Create virtual environment and activate it.
@@ -95,9 +100,13 @@ python manage.py seed_demo_data
 - `.env.example` contains all required runtime variables for local and production setup
 - Docker setup uses PostgreSQL container and runs migrations/collectstatic on startup
 
-## Current stage
+## Verification commands
 
-Initial project skeleton, item payment flow, and order domain models are prepared. Feature work is split into topic branches and issue-driven commits.
+```bash
+python manage.py migrate
+python manage.py seed_demo_data
+python manage.py runserver
+```
 
 ## Available endpoints
 
