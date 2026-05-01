@@ -105,6 +105,7 @@ python manage.py seed_demo_data
 ```bash
 python manage.py migrate
 python manage.py seed_demo_data
+python manage.py test apps.payments
 python manage.py runserver
 ```
 
