@@ -66,6 +66,19 @@ After deployment, provide to reviewers:
 - admin URL (`/admin/`)
 - admin credentials configured via environment variables
 
+## Demo seed and admin UX
+
+- Create quick demo dataset:
+
+```bash
+python manage.py seed_demo_data
+```
+
+- Admin improvements:
+  - Item admin has direct links to Checkout and PaymentIntent pages
+  - Order admin has direct links to order Checkout/Intent API endpoints
+  - Order admin has bulk action to recalculate totals
+
 ## Project structure
 
 - `config/settings/` — environment-aware settings (`base`, `dev`, `prod`)
