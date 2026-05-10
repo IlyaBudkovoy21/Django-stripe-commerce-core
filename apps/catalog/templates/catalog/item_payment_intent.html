@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main>
+  <h1>Pay {{ item.name }} with Payment Intent</h1>
+  <p>{{ item.description }}</p>
+  <p>Price: {{ item.price }} {{ item.currency }}</p>
+
+  <form id="payment-form">
+    <div id="card-element"></div>
+    <button id="pay-button" type="submit">Pay now</button>
+  </form>
+
+  <p id="payment-message"></p>
+  <p><a href="/item/{{ item.id }}/">Back to checkout session page</a></p>
+</main>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+  const stripePublicKey = "{{ stripe_publishable_key|escapejs }}";
+  const messageNode = document.getElementById("payment-message");
+
+  if (!stripePublicKey) {
+    messageNode.textContent = "Stripe publishable key is not configured.";
+  } else {
+    const stripe = Stripe(stripePublicKey);
+    const elements = stripe.elements();
+    const cardElement = elements.create("card");
+    cardElement.mount("#card-element");
+
+    const form = document.getElementById("payment-form");
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      messageNode.textContent = "Processing payment...";
+
+      const response = await fetch("/pay-intent/item/{{ item.id }}/", { method: "GET" });
+      if (!response.ok) {
+        messageNode.textContent = "Failed to create payment intent.";
+        return;
+      }
+
+      const payload = await response.json();
+      const result = await stripe.confirmCardPayment(payload.client_secret, {
+        payment_method: {
+          card: cardElement,
+        },
+      });
+
+      if (result.error) {
+        messageNode.textContent = result.error.message;
+        return;
+      }
+
+      if (result.paymentIntent && result.paymentIntent.status === "succeeded") {
+        messageNode.textContent = "Payment succeeded.";
+      } else {
+        messageNode.textContent = "Payment status: " + result.paymentIntent.status;
+      }
+    });
+  }
+</script>
+{% endblock %}

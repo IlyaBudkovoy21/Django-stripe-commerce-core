@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main>
+  <h1>{{ item.name }}</h1>
+  <p>{{ item.description }}</p>
+  <p>Price: {{ item.price }} {{ item.currency }}</p>
+
+  <button id="buy-button" type="button">Buy</button>
+  <p><a href="/item/{{ item.id }}/intent/">Pay with Payment Intent</a></p>
+</main>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+  const stripePublicKey = "{{ stripe_publishable_key|escapejs }}";
+  const buyButton = document.getElementById("buy-button");
+
+  buyButton.addEventListener("click", async () => {
+    if (!stripePublicKey) {
+      alert("Stripe publishable key is not configured.");
+      return;
+    }
+
+    const response = await fetch("/buy/{{ item.id }}/", { method: "GET" });
+    if (!response.ok) {
+      alert("Failed to create checkout session.");
+      return;
+    }
+
+    const session = await response.json();
+    const stripe = Stripe(stripePublicKey);
+    const result = await stripe.redirectToCheckout({ sessionId: session.id });
+    if (result.error) {
+      alert(result.error.message);
+    }
+  });
+</script>
+{% endblock %}
